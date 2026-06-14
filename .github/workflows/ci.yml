@@ -1,9 +1,13 @@
 name: CI
 
-# PR時に型/コンテンツチェックとビルドを検証する（デプロイはしない）。
+# PR時、および content ブランチへの push 時に、型/コンテンツチェックとビルドを検証する
+# （デプロイはしない）。content の push に対する検証結果は、自動PRの head SHA に
+# 紐づくため content→main のPR上にもチェックとして表示される。
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [content]
   workflow_dispatch:
 
 permissions:

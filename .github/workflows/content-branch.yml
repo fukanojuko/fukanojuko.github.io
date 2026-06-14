@@ -1,0 +1,40 @@
+name: Ensure content branch
+
+# CMS のコミット先 content ブランチを自動で維持する。
+# - content が削除されたら（PRマージ時の自動削除・手動削除）main から再作成
+# - main への push 時に content が無ければ作成（初期ブートストラップ兼保険）
+# これにより「Squash merge + ブランチ削除」を自由に使え、content は毎サイクル
+# main にリセットされる（履歴が無駄に分岐しない）。既存の content は上書きしない（編集中の変更を消さない）。
+on:
+  delete:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: content-branch
+  cancel-in-progress: false
+
+jobs:
+  ensure:
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'delete' &&
+       github.event.ref_type == 'branch' &&
+       github.event.ref == 'content')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Recreate content from main if missing
+        run: |
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/content" >/dev/null 2>&1; then
+            echo "content ブランチは存在します。何もしません（編集中の変更を保持）。"
+            exit 0
+          fi
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)
+          gh api "repos/$GITHUB_REPOSITORY/git/refs" \
+            -f ref=refs/heads/content -f sha="$main_sha"
+          echo "content ブランチを main ($main_sha) から再作成しました。"

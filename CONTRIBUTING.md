@@ -38,7 +38,8 @@ npm run check    # 型・コンテンツのチェック
    - **タイトル**: 表示名（日本語OK）
    - **URL用ID（slug）**: 英小文字・数字・ハイフンのみ。これがURLになる（→ [3. slug](#3-slug-作品urlの命名規則)）
    - 画像（サムネ・ギャラリー）はその場でアップロードできる（保存先は `public/images`）
-5. **保存（Publish）** すると `main` に直接コミットされ、GitHub Actions が走って **数分で自動公開**される
+5. **保存（Publish）** すると `content` ブランチにコミットされ、`main` への **Pull Request が自動で作成/更新**される（`main` 直編集はしない）
+6. **matuyuhi がレビューしてマージ**すると、`main` のデプロイが走って **数分で本番公開**される（CI のビルド検証もPRに表示される）
 
 ---
 
@@ -109,8 +110,12 @@ src/styles/notes/<slug>.css     （メモページ用）
 | ワークフロー | トリガー | 内容 |
 | --- | --- | --- |
 | `deploy.yml` | `main` への push / 手動 | ビルドして GitHub Pages に公開 |
-| `ci.yml` | PR（→ `main`）/ 手動 | `npm run check` ＋ `npm run build` を検証（**デプロイはしない**） |
-| `pr-reviewer.yml` | PRが open / reopen / draft解除 | レビュアーに **`matuyuhi`** を自動アサイン |
+| `ci.yml` | PR（→ `main`）/ `content` への push / 手動 | `npm run check` ＋ `npm run build` を検証（**デプロイはしない**） |
+| `cms-pr.yml` | `content` への push | `content` → `main` の PR を自動作成/更新し、`matuyuhi` をレビュアー指定 |
+| `content-branch.yml` | `content` の delete / `main` への push | `content` ブランチが無ければ `main` から自動作成（削除されても復活） |
+| `pr-reviewer.yml` | PRが open / reopen / draft解除 | レビュアーに **`matuyuhi`** を自動アサイン（人が作るPR向け） |
+
+> 自動生成PRは `GITHUB_TOKEN` で作られるため `pull_request` 系（`pr-reviewer.yml`）は発火しない。そのため `cms-pr.yml` 側でレビュアーを指定し、ビルド検証は `ci.yml` の `content` push トリガで担保している。
 
 - レビュアー自動アサインは **`matuyuhi` が当リポジトリのコラボレーター（or 組織メンバー）である**ことが前提。権限が無いと依頼はスキップされる（CIは落とさず警告のみ）。
 - 自分（`matuyuhi`）が作成したPRには、GitHub仕様上レビュー依頼できないため自動アサインされない。
@@ -154,7 +159,20 @@ PAT を都度貼るのをやめる場合は、OAuth 仲介サーバー [`sveltia
 
 ---
 
-## 10. 運用上の制約
+## 10. 運用上の制約（レビューフロー）
 
-- Sveltia CMS は**単一ブランチ運用**（`main` 直編集）。投稿ごとのブランチ自動作成・承認フローは未対応。少人数前提。
-- CMS が `main` に直コミット → GitHub Actions が走って自動反映、という流れ。
+Sveltia CMS は投稿ごとPRを作る `editorial_workflow` が**未実装**（公式ロードマップで v1.0／2026年中頃予定）。そこで本リポジトリでは **`content` ブランチ＋自動PR** で代替している:
+
+```
+CMS で保存 → content にコミット → cms-pr.yml が content→main の PR を自動作成
+→ CI（ci.yml）でビルド検証 → matuyuhi がレビュー&マージ → deploy.yml で公開
+```
+
+`content` ブランチは `content-branch.yml` が自動で維持する: **削除されても main から再作成**され、main への push 時に無ければ作られる（既存の content は上書きしない＝編集中の変更は消さない）。
+
+運用上の注意:
+
+- PR は **Squash and merge ＋ ブランチ削除** を自由に使ってよい。マージ後 `content` は main から再作成され、毎サイクル main にリセットされる（履歴が無駄に分岐しない）。
+- 編集は1本の `content` → `main` PR にまとまる（投稿ごとに別PRにはならない）。少人数前提。
+- Sveltia 公式が `editorial_workflow` を実装したら、この自動PR＋自動再作成の仕組みは置き換え可能。
+- 認証は当面 PAT 運用（[8. 認証](#8-認証初期は-pat-運用)）。OAuth 化は将来オプション。

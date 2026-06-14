@@ -1,7 +1,10 @@
 backend:
   name: github
   repo: fukanojuko/fukanojuko.github.io
-  branch: main
+  # CMS は main 直編集せず content ブランチへコミットする。
+  # content への push で main への Pull Request が自動生成され、
+  # レビュー&マージで公開される（.github/workflows/cms-pr.yml）。
+  branch: content
 
 # アップロード画像は public/images に保存し、本文からは /images/... で参照する
 media_folder: public/images

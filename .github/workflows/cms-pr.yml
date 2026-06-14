@@ -1,0 +1,39 @@
+name: CMS auto PR
+
+# Sveltia CMS は content ブランチへコミットする（main 直編集をさせない）。
+# content への push をトリガに、main への Pull Request を自動で作成/更新し、
+# レビュアーに matuyuhi を指定する。matuyuhi がマージすると deploy.yml が走って公開される。
+#
+# 補足: 自動生成PRは GITHUB_TOKEN で作られるため pull_request 系ワークフロー
+# （ci.yml の pull_request / pr-reviewer.yml）は発火しない。そのため
+# レビュアー指定はここで行い、ビルド検証は ci.yml の push トリガ（content）で担保する。
+on:
+  push:
+    branches: [content]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: cms-pr
+  cancel-in-progress: false
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Ensure PR (content -> main) and assign reviewer
+        run: |
+          if gh pr view content --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            echo "既存のオープンPRにコミットが追加されました。"
+          else
+            gh pr create --base main --head content \
+              --title "CMS: content の変更を main へ反映" \
+              --body "Sveltia CMS で \`content\` ブランチに加えられた変更です。CI を確認し、マージすると本番に公開されます。"
+          fi
+          gh pr edit content --add-reviewer matuyuhi \
+            || echo "レビュアー追加に失敗（matuyuhi が collaborator でない可能性）。"
