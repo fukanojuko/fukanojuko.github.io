@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  game: CollectionEntry<'games'>;
+}
+
+const { game } = Astro.props;
+const { title, genre, summary, thumbnail } = game.data;
+// id = ファイル名 = slug。作品URLは /<slug>/。
+const href = `/${game.id}/`;
+---
+
+<a class="card" href={href}>
+  <div class="thumb">
+    {
+      thumbnail ? (
+        <img src={thumbnail} alt={title} loading="lazy" />
+      ) : (
+        <div class="placeholder">{title}</div>
+      )
+    }
+  </div>
+  <div class="body">
+    {genre && <span class="badge">{genre}</span>}
+    <h2>{title}</h2>
+    {summary && <p>{summary}</p>}
+  </div>
+</a>

@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import GameCard from '../components/GameCard.astro';
+import { SITE_TITLE, SITE_TAGLINE } from '../consts';
+
+// draft を除外し、order 昇順（未指定は末尾）→ title でソート。
+const games = (await getCollection('games', ({ data }) => !data.draft)).sort(
+  (a, b) => {
+    const oa = a.data.order ?? Number.POSITIVE_INFINITY;
+    const ob = b.data.order ?? Number.POSITIVE_INFINITY;
+    if (oa !== ob) return oa - ob;
+    return a.data.title.localeCompare(b.data.title, 'ja');
+  }
+);
+---
+
+<Layout title={SITE_TITLE}>
+  <section class="hero">
+    <h1>{SITE_TITLE}</h1>
+    <p>{SITE_TAGLINE}</p>
+  </section>
+
+  {
+    games.length > 0 ? (
+      <section class="grid">
+        {games.map((game) => (
+          <GameCard game={game} />
+        ))}
+      </section>
+    ) : (
+      <p class="empty">まだ作品が登録されていません。</p>
+    )
+  }
+</Layout>

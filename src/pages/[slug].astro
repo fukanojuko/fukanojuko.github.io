@@ -1,0 +1,92 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const games = await getCollection('games', ({ data }) => !data.draft);
+  return games.map((game) => ({
+    params: { slug: game.id }, // id = ファイル名 = slug
+    props: { game },
+  }));
+}
+
+const { game } = Astro.props;
+const { Content } = await render(game);
+const { title, genre, engine, release, summary, thumbnail, links } = game.data;
+
+// ───────────────────────────────────────────────────────────────
+// エンジニア向け: ページ単位のCSS介入口
+// src/styles/games/<slug>.css を置くと、そのページにだけ自動で適用される。
+// （CMSには露出しない＝リポジトリ直編集できるエンジニア専用。
+//   非エンジニアは Markdown 本文だけを CMS で編集する。）
+// 各ページ本文は <article class="detail game-<slug>"> でラップされるので、
+// CSSは `.game-<slug> { ... }` のようにスコープして書く。
+// ───────────────────────────────────────────────────────────────
+const pageStyles = import.meta.glob('../styles/games/*.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const pageCss = pageStyles[`../styles/games/${game.id}.css`];
+---
+
+<Layout
+  title={title}
+  description={summary}
+  image={thumbnail}
+  bodyClass={`game-${game.id}`}
+>
+  {pageCss && <style is:inline set:html={pageCss} slot="head" />}
+
+  <a class="back" href="/">← 作品一覧へ戻る</a>
+
+  <article class={`detail game-${game.id}`}>
+    {
+      thumbnail && (
+        <div class="cover">
+          <img src={thumbnail} alt={title} />
+        </div>
+      )
+    }
+
+    <h1>{title}</h1>
+
+    <ul class="meta">
+      {genre && (
+        <li><span>ジャンル</span>{genre}</li>
+      )}
+      {engine && (
+        <li><span>エンジン</span>{engine}</li>
+      )}
+      {release && (
+        <li><span>リリース</span>{release}</li>
+      )}
+    </ul>
+
+    {
+      links && (links.store || links.site || links.x) && (
+        <div class="links">
+          {links.store && (
+            <a href={links.store} target="_blank" rel="noopener">
+              ストア
+            </a>
+          )}
+          {links.site && (
+            <a href={links.site} target="_blank" rel="noopener">
+              公式サイト
+            </a>
+          )}
+          {links.x && (
+            <a href={links.x} target="_blank" rel="noopener">
+              X
+            </a>
+          )}
+        </div>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,33 @@
+name: CI
+
+# PR時に型/コンテンツチェックとビルドを検証する（デプロイはしない）。
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同一PRへの連続pushで古いCIをキャンセルする
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version # 24.16.0
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Type & content check
+        run: npm run check
+      - name: Build
+        run: npm run build

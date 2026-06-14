@@ -1,0 +1,74 @@
+backend:
+  name: github
+  repo: fukanojuko/fukanojuko.github.io
+  branch: main
+
+# アップロード画像は public/images に保存し、本文からは /images/... で参照する
+media_folder: public/images
+public_folder: /images
+
+# 非エンジニア向けの表示設定
+locale: ja
+
+collections:
+  - name: games
+    label: ゲーム作品
+    label_singular: ゲーム作品
+    folder: src/content/games
+    create: true
+    # ファイル名を slug フィールドの値で固定する。
+    # → 日本語タイトルでも ファイル名=URL は英数字のまま保たれる。
+    slug: '{{fields.slug}}'
+    extension: md
+    format: frontmatter
+    summary: '{{title}}  ({{slug}})'
+    sortable_fields: [order, title, release]
+    fields:
+      - { name: title, label: タイトル（表示名）, widget: string }
+      - {
+          name: slug,
+          label: URL用ID（英小文字・数字・ハイフン）,
+          widget: string,
+          hint: '作品URL https://fukanojuko.github.io/<ここ>/ になります。後から変えるとURLが変わるので注意。',
+          pattern: ['^[a-z0-9-]+$', '英小文字・数字・ハイフンのみ使えます'],
+        }
+      - { name: genre, label: ジャンル, widget: string, required: false }
+      - { name: engine, label: 使用エンジン, widget: string, required: false }
+      - {
+          name: release,
+          label: リリース時期,
+          widget: string,
+          required: false,
+          hint: '例: 2026-03',
+        }
+      - { name: summary, label: 概要（一覧カードに出る短文）, widget: text, required: false }
+      - {
+          name: thumbnail,
+          label: サムネイル,
+          widget: image,
+          required: false,
+          media_library: { config: { multiple: false } },
+        }
+      - {
+          name: order,
+          label: 表示順（小さいほど前）,
+          widget: number,
+          required: false,
+          value_type: int,
+        }
+      - { name: draft, label: 下書き（チェック中は公開されない）, widget: boolean, default: false }
+      - label: リンク
+        name: links
+        widget: object
+        required: false
+        collapsed: true
+        fields:
+          - { name: store, label: ストア, widget: string, required: false }
+          - { name: site, label: 公式サイト, widget: string, required: false }
+          - { name: x, label: X（Twitter）, widget: string, required: false }
+      - {
+          name: body,
+          label: 本文（Markdown）,
+          widget: markdown,
+          required: false,
+        }

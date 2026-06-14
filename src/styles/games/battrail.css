@@ -1,0 +1,22 @@
+/*
+ * ページ単位のCSS介入（エンジニア向け） — /battrail/ にだけ適用される。
+ * src/pages/[slug].astro が import.meta.glob で自動読み込みする。
+ * 命名規則: src/styles/games/<slug>.css
+ *
+ * 本文は <body class="game-battrail"> / <article class="detail game-battrail"> で
+ * ラップされるので、必ず .game-battrail 配下にスコープして書く（他ページへ波及させない）。
+ *
+ * 下は例（コメントアウト中）。必要に応じて編集・有効化する。不要ならこのファイルごと削除。
+ */
+
+/*
+.game-battrail {
+  --accent: #7bed9f;
+}
+.game-battrail.detail h1 {
+  background: linear-gradient(90deg, #7bed9f, #f06595);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+*/
