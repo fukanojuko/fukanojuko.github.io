@@ -1,0 +1,21 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../consts';
+
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
+const { note } = Astro.props;
+const { title, date, summary } = note.data;
+const href = `/notes/${note.id}/`;
+const dateStr = formatDate(date);
+---
+
+<li>
+  <a href={href}>
+    {dateStr && <time datetime={dateStr}>{dateStr}</time>}
+    <span class="note-title">{title}</span>
+    {summary && <span class="note-sum">{summary}</span>}
+  </a>
+</li>

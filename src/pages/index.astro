@@ -1,18 +1,25 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import GameCard from '../components/GameCard.astro';
+import WorkCard from '../components/WorkCard.astro';
+import DesignCard from '../components/DesignCard.astro';
+import NoteItem from '../components/NoteItem.astro';
 import { SITE_TITLE, SITE_TAGLINE } from '../consts';
 
-// draft を除外し、order 昇順（未指定は末尾）→ title でソート。
-const games = (await getCollection('games', ({ data }) => !data.draft)).sort(
-  (a, b) => {
-    const oa = a.data.order ?? Number.POSITIVE_INFINITY;
-    const ob = b.data.order ?? Number.POSITIVE_INFINITY;
-    if (oa !== ob) return oa - ob;
-    return a.data.title.localeCompare(b.data.title, 'ja');
-  }
+const byOrder = (a: { order?: number }, b: { order?: number }) =>
+  (a.order ?? Number.POSITIVE_INFINITY) - (b.order ?? Number.POSITIVE_INFINITY);
+const byDateDesc = (a: { date?: Date }, b: { date?: Date }) =>
+  (b.date?.getTime() ?? 0) - (a.date?.getTime() ?? 0);
+
+const works = (await getCollection('works', ({ data }) => !data.draft)).sort(
+  (a, b) => byOrder(a.data, b.data)
 );
+const designs = (await getCollection('designs', ({ data }) => !data.draft))
+  .sort((a, b) => byDateDesc(a.data, b.data) || byOrder(a.data, b.data))
+  .slice(0, 6);
+const notes = (await getCollection('notes', ({ data }) => !data.draft))
+  .sort((a, b) => byDateDesc(a.data, b.data))
+  .slice(0, 5);
 ---
 
 <Layout title={SITE_TITLE}>
@@ -21,15 +28,57 @@ const games = (await getCollection('games', ({ data }) => !data.draft)).sort(
     <p>{SITE_TAGLINE}</p>
   </section>
 
-  {
-    games.length > 0 ? (
-      <section class="grid">
-        {games.map((game) => (
-          <GameCard game={game} />
-        ))}
-      </section>
-    ) : (
-      <p class="empty">まだ作品が登録されていません。</p>
-    )
-  }
+  <section class="section">
+    <div class="section-head">
+      <h2>作品</h2>
+      <a class="more" href="/works/">すべて見る →</a>
+    </div>
+    {
+      works.length > 0 ? (
+        <div class="grid">
+          {works.map((work) => (
+            <WorkCard work={work} />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">まだ作品が登録されていません。</p>
+      )
+    }
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>デザイン</h2>
+      <a class="more" href="/designs/">すべて見る →</a>
+    </div>
+    {
+      designs.length > 0 ? (
+        <div class="grid">
+          {designs.map((design) => (
+            <DesignCard design={design} />
+          ))}
+        </div>
+      ) : (
+        <p class="empty">まだデザインが登録されていません。</p>
+      )
+    }
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>制作メモ</h2>
+      <a class="more" href="/notes/">すべて見る →</a>
+    </div>
+    {
+      notes.length > 0 ? (
+        <ul class="note-list">
+          {notes.map((note) => (
+            <NoteItem note={note} />
+          ))}
+        </ul>
+      ) : (
+        <p class="empty">まだ制作メモがありません。</p>
+      )
+    }
+  </section>
 </Layout>

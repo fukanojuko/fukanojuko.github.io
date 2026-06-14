@@ -7,18 +7,16 @@ backend:
 media_folder: public/images
 public_folder: /images
 
-# 非エンジニア向けの表示設定
 locale: ja
 
 collections:
-  - name: games
-    label: ゲーム作品
-    label_singular: ゲーム作品
-    folder: src/content/games
+  # 作品（コンテスト提出用の固定URL /works/<slug>/）
+  - name: works
+    label: 作品
+    label_singular: 作品
+    folder: src/content/works
     create: true
-    # ファイル名を slug フィールドの値で固定する。
-    # → 日本語タイトルでも ファイル名=URL は英数字のまま保たれる。
-    slug: '{{fields.slug}}'
+    slug: '{{fields.slug}}' # ファイル名を slug で固定（日本語タイトルでもURLは英数字）
     extension: md
     format: frontmatter
     summary: '{{title}}  ({{slug}})'
@@ -29,34 +27,16 @@ collections:
           name: slug,
           label: URL用ID（英小文字・数字・ハイフン）,
           widget: string,
-          hint: '作品URL https://fukanojuko.github.io/<ここ>/ になります。後から変えるとURLが変わるので注意。',
-          pattern: ['^[a-z0-9-]+$', '英小文字・数字・ハイフンのみ使えます'],
+          hint: '作品URL https://fukanojuko.github.io/works/<ここ>/ になります。公開後は変えない。',
+          pattern: ['^[a-z0-9-]+$', '英小文字・数字・ハイフンのみ'],
         }
       - { name: genre, label: ジャンル, widget: string, required: false }
       - { name: engine, label: 使用エンジン, widget: string, required: false }
-      - {
-          name: release,
-          label: リリース時期,
-          widget: string,
-          required: false,
-          hint: '例: 2026-03',
-        }
-      - { name: summary, label: 概要（一覧カードに出る短文）, widget: text, required: false }
-      - {
-          name: thumbnail,
-          label: サムネイル,
-          widget: image,
-          required: false,
-          media_library: { config: { multiple: false } },
-        }
-      - {
-          name: order,
-          label: 表示順（小さいほど前）,
-          widget: number,
-          required: false,
-          value_type: int,
-        }
-      - { name: draft, label: 下書き（チェック中は公開されない）, widget: boolean, default: false }
+      - { name: release, label: リリース時期, widget: string, required: false, hint: '例: 2026-03' }
+      - { name: summary, label: 概要（一覧カードの短文）, widget: text, required: false }
+      - { name: thumbnail, label: サムネイル, widget: image, required: false }
+      - { name: order, label: 表示順（小さいほど前）, widget: number, required: false, value_type: int }
+      - { name: draft, label: 下書き（チェック中は非公開）, widget: boolean, default: false }
       - label: リンク
         name: links
         widget: object
@@ -66,9 +46,94 @@ collections:
           - { name: store, label: ストア, widget: string, required: false }
           - { name: site, label: 公式サイト, widget: string, required: false }
           - { name: x, label: X（Twitter）, widget: string, required: false }
+      - { name: body, label: 本文（Markdown）, widget: markdown, required: false }
+
+  # デザインラフ・WIP の共有 /designs/<slug>/
+  - name: designs
+    label: デザイン
+    label_singular: デザイン
+    folder: src/content/designs
+    create: true
+    slug: '{{fields.slug}}'
+    extension: md
+    format: frontmatter
+    summary: '{{title}}  ({{slug}})'
+    sortable_fields: [date, order, title]
+    fields:
+      - { name: title, label: タイトル, widget: string }
       - {
-          name: body,
-          label: 本文（Markdown）,
-          widget: markdown,
-          required: false,
+          name: slug,
+          label: URL用ID（英小文字・数字・ハイフン）,
+          widget: string,
+          pattern: ['^[a-z0-9-]+$', '英小文字・数字・ハイフンのみ'],
         }
+      - { name: summary, label: 概要, widget: text, required: false }
+      - {
+          name: date,
+          label: 日付,
+          widget: datetime,
+          required: false,
+          date_format: 'YYYY-MM-DD',
+          time_format: false,
+          format: 'YYYY-MM-DD',
+        }
+      - {
+          name: status,
+          label: ステータス,
+          widget: select,
+          required: false,
+          options: [ラフ, WIP, 確定],
+        }
+      - {
+          name: work,
+          label: 関連作品,
+          widget: relation,
+          required: false,
+          collection: works,
+          search_fields: [title, slug],
+          value_field: slug,
+          display_fields: [title],
+        }
+      - { name: thumbnail, label: サムネイル（一覧表示用）, widget: image, required: false }
+      - label: 画像（複数）
+        name: images
+        widget: list
+        required: false
+        field: { name: image, label: 画像, widget: image }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - { name: order, label: 表示順, widget: number, required: false, value_type: int }
+      - { name: draft, label: 下書き（チェック中は非公開）, widget: boolean, default: false }
+      - { name: body, label: 本文（Markdown）, widget: markdown, required: false }
+
+  # 制作メモ・devlog /notes/<slug>/
+  - name: notes
+    label: 制作メモ
+    label_singular: 制作メモ
+    folder: src/content/notes
+    create: true
+    slug: '{{fields.slug}}'
+    extension: md
+    format: frontmatter
+    summary: '{{date}} {{title}}'
+    sortable_fields: [date, title]
+    fields:
+      - { name: title, label: タイトル, widget: string }
+      - {
+          name: slug,
+          label: URL用ID（英小文字・数字・ハイフン）,
+          widget: string,
+          pattern: ['^[a-z0-9-]+$', '英小文字・数字・ハイフンのみ'],
+        }
+      - {
+          name: date,
+          label: 日付,
+          widget: datetime,
+          required: false,
+          date_format: 'YYYY-MM-DD',
+          time_format: false,
+          format: 'YYYY-MM-DD',
+        }
+      - { name: summary, label: 概要, widget: text, required: false }
+      - { name: tags, label: タグ, widget: list, required: false }
+      - { name: draft, label: 下書き（チェック中は非公開）, widget: boolean, default: false }
+      - { name: body, label: 本文（Markdown）, widget: markdown, required: false }

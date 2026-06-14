@@ -1,0 +1,82 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { formatDate } from '../../consts';
+
+export async function getStaticPaths() {
+  const designs = await getCollection('designs', ({ data }) => !data.draft);
+  return designs.map((design) => ({
+    params: { slug: design.id },
+    props: { design },
+  }));
+}
+
+const { design } = Astro.props;
+const { Content } = await render(design);
+const { title, summary, date, status, work, thumbnail, images, tags } =
+  design.data;
+const dateStr = formatDate(date);
+
+// ページ単位のCSS介入: src/styles/designs/<slug>.css
+const pageStyles = import.meta.glob('../../styles/designs/*.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const pageCss = pageStyles[`../../styles/designs/${design.id}.css`];
+
+const gallery = images && images.length > 0 ? images : thumbnail ? [thumbnail] : [];
+const ogImage = thumbnail ?? images?.[0];
+---
+
+<Layout
+  title={title}
+  description={summary}
+  image={ogImage}
+  bodyClass={`design-${design.id}`}
+>
+  {pageCss && <style is:inline set:html={pageCss} slot="head" />}
+
+  <a class="back" href="/designs/">← デザイン一覧へ戻る</a>
+
+  <article class={`detail design-${design.id}`}>
+    <h1>{title}</h1>
+
+    <ul class="meta">
+      {status && <li><span>ステータス</span>{status}</li>}
+      {dateStr && <li><span>日付</span>{dateStr}</li>}
+      {work && (
+        <li>
+          <span>関連作品</span>
+          <a href={`/works/${work}/`}>{work}</a>
+        </li>
+      )}
+    </ul>
+
+    {
+      tags && tags.length > 0 && (
+        <div class="card tagrow" style="border:none;background:none;padding:0;margin-bottom:20px;">
+          {tags.map((t) => (
+            <span class="tag">{t}</span>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      gallery.length > 0 && (
+        <div class="gallery">
+          {gallery.map((src) => (
+            <figure>
+              <img src={src} alt={title} loading="lazy" />
+            </figure>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Layout>

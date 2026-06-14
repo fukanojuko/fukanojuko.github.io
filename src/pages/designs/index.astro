@@ -1,0 +1,34 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import DesignCard from '../../components/DesignCard.astro';
+
+const designs = (await getCollection('designs', ({ data }) => !data.draft)).sort(
+  (a, b) => {
+    const d = (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0);
+    if (d !== 0) return d;
+    const oa = a.data.order ?? Number.POSITIVE_INFINITY;
+    const ob = b.data.order ?? Number.POSITIVE_INFINITY;
+    return oa - ob;
+  }
+);
+---
+
+<Layout title="デザイン" description="fukanojuko のデザインラフ・WIP">
+  <section class="hero">
+    <h1>デザイン</h1>
+    <p>デザインラフ・WIP の共有。</p>
+  </section>
+
+  {
+    designs.length > 0 ? (
+      <section class="grid">
+        {designs.map((design) => (
+          <DesignCard design={design} />
+        ))}
+      </section>
+    ) : (
+      <p class="empty">まだデザインが登録されていません。</p>
+    )
+  }
+</Layout>

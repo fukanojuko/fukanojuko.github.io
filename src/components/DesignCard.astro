@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  design: CollectionEntry<'designs'>;
+}
+
+const { design } = Astro.props;
+const { title, summary, status, thumbnail, images } = design.data;
+const cover = thumbnail ?? images?.[0];
+const href = `/designs/${design.id}/`;
+---
+
+<a class="card" href={href}>
+  <div class="thumb">
+    {
+      cover ? (
+        <img src={cover} alt={title} loading="lazy" />
+      ) : (
+        <div class="placeholder">{title}</div>
+      )
+    }
+  </div>
+  <div class="body">
+    {status && <span class="status">{status}</span>}
+    <h3>{title}</h3>
+    {summary && <p>{summary}</p>}
+  </div>
+</a>

@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+
+const works = (await getCollection('works', ({ data }) => !data.draft)).sort(
+  (a, b) => {
+    const oa = a.data.order ?? Number.POSITIVE_INFINITY;
+    const ob = b.data.order ?? Number.POSITIVE_INFINITY;
+    if (oa !== ob) return oa - ob;
+    return a.data.title.localeCompare(b.data.title, 'ja');
+  }
+);
+---
+
+<Layout title="作品" description="fukanojuko の作品一覧">
+  <section class="hero">
+    <h1>作品</h1>
+    <p>完成・開発中の作品紹介。</p>
+  </section>
+
+  {
+    works.length > 0 ? (
+      <section class="grid">
+        {works.map((work) => (
+          <WorkCard work={work} />
+        ))}
+      </section>
+    ) : (
+      <p class="empty">まだ作品が登録されていません。</p>
+    )
+  }
+</Layout>

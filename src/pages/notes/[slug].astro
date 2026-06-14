@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import { formatDate } from '../../consts';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map((note) => ({
+    params: { slug: note.id },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await render(note);
+const { title, date, summary, tags } = note.data;
+const dateStr = formatDate(date);
+
+// ページ単位のCSS介入: src/styles/notes/<slug>.css
+const pageStyles = import.meta.glob('../../styles/notes/*.css', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+const pageCss = pageStyles[`../../styles/notes/${note.id}.css`];
+---
+
+<Layout
+  title={title}
+  description={summary}
+  bodyClass={`note-${note.id}`}
+>
+  {pageCss && <style is:inline set:html={pageCss} slot="head" />}
+
+  <a class="back" href="/notes/">← 制作メモ一覧へ戻る</a>
+
+  <article class={`detail note-${note.id}`}>
+    <h1>{title}</h1>
+
+    <ul class="meta">
+      {dateStr && <li><span>日付</span>{dateStr}</li>}
+    </ul>
+
+    {
+      tags && tags.length > 0 && (
+        <div class="tagrow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+          {tags.map((t) => (
+            <span class="tag">{t}</span>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Layout>

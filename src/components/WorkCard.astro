@@ -2,13 +2,12 @@
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
-  game: CollectionEntry<'games'>;
+  work: CollectionEntry<'works'>;
 }
 
-const { game } = Astro.props;
-const { title, genre, summary, thumbnail } = game.data;
-// id = ファイル名 = slug。作品URLは /<slug>/。
-const href = `/${game.id}/`;
+const { work } = Astro.props;
+const { title, genre, summary, thumbnail } = work.data;
+const href = `/works/${work.id}/`; // id = ファイル名 = slug
 ---
 
 <a class="card" href={href}>
@@ -23,7 +22,7 @@ const href = `/${game.id}/`;
   </div>
   <div class="body">
     {genre && <span class="badge">{genre}</span>}
-    <h2>{title}</h2>
+    <h3>{title}</h3>
     {summary && <p>{summary}</p>}
   </div>
 </a>

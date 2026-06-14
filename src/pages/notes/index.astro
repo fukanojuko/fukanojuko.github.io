@@ -1,0 +1,28 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import NoteItem from '../../components/NoteItem.astro';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => (b.data.date?.getTime() ?? 0) - (a.data.date?.getTime() ?? 0)
+);
+---
+
+<Layout title="制作メモ" description="fukanojuko の制作メモ・devlog">
+  <section class="hero">
+    <h1>制作メモ</h1>
+    <p>制作の記録・メモ。</p>
+  </section>
+
+  {
+    notes.length > 0 ? (
+      <ul class="note-list">
+        {notes.map((note) => (
+          <NoteItem note={note} />
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">まだ制作メモがありません。</p>
+    )
+  }
+</Layout>
