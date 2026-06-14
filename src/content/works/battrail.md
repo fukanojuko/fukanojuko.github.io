@@ -16,4 +16,4 @@ draft: false
 
 光の如く駆け抜けて、ぶつかり合うその軌跡をテストプレイで魅せてくれ！
 
-![](/images/race_deg_02.png)
+<img width="300" src="/images/race_deg_02.png" />
