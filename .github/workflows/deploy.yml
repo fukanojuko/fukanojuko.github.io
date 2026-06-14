@@ -20,11 +20,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Build with Astro
-        uses: withastro/action@v3
+        uses: withastro/action@v6
         with:
-          node-version: 24.16.0 # .node-version と一致。Astro 6 は Node >=22.12 が必須（action のデフォルト20では動かない）
+          node-version: 24.16.0 # .node-version と一致（Astro 6 は Node >=22.12 が必須）
           # package-manager: pnpm@latest  # lockfile から自動検出されるので通常は不要
 
   deploy:
@@ -36,4 +36,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
