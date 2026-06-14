@@ -5,6 +5,9 @@ backend:
   # content への push で main への Pull Request が自動生成され、
   # レビュー&マージで公開される（.github/workflows/cms-pr.yml）。
   branch: content
+  # OAuth ログイン（「GitHub でログイン」）の仲介サーバー。
+  # sveltia-cms-auth を Cloudflare Workers にデプロイしたもの。
+  base_url: https://sveltia-cms-auth.bird9-yuhi.workers.dev
 
 # アップロード画像は public/images に保存し、本文からは /images/... で参照する
 media_folder: public/images
