@@ -37,7 +37,8 @@ const ogImage = thumbnail ?? images?.[0];
 >
   {pageCss && <style is:inline set:html={pageCss} slot="head" />}
 
-  <a class="back" href="/designs/">← デザイン一覧へ戻る</a>
+  <div class="wrap">
+    <a class="back" href="/designs/">← デザイン一覧へ戻る</a>
 
   <article class={`detail design-${design.id}`}>
     <h1>{title}</h1>
@@ -55,7 +56,7 @@ const ogImage = thumbnail ?? images?.[0];
 
     {
       tags && tags.length > 0 && (
-        <div class="card tagrow" style="border:none;background:none;padding:0;margin-bottom:20px;">
+        <div class="tagrow">
           {tags.map((t) => (
             <span class="tag">{t}</span>
           ))}
@@ -79,4 +80,5 @@ const ogImage = thumbnail ?? images?.[0];
       <Content />
     </div>
   </article>
+  </div>
 </Layout>

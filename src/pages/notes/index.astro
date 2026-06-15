@@ -8,21 +8,25 @@ const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
 );
 ---
 
-<Layout title="制作メモ" description="fukanojuko の制作メモ・devlog">
-  <section class="hero">
-    <h1>制作メモ</h1>
-    <p>制作の記録・メモ。</p>
+<Layout title="制作メモ" description="深野重興 の制作メモ・devlog">
+  <section class="hero-k hero-k--page">
+    <h1 class="hero-k__title reveal reveal-1">制作メモ</h1>
+    <p class="hero-k__sub reveal reveal-2">制作の記録・メモ。</p>
   </section>
 
-  {
-    notes.length > 0 ? (
-      <ul class="note-list">
-        {notes.map((note) => (
-          <NoteItem note={note} />
-        ))}
-      </ul>
-    ) : (
-      <p class="empty">まだ制作メモがありません。</p>
-    )
-  }
+  <section class="section">
+    <div class="wrap rise">
+      {
+        notes.length > 0 ? (
+          <ul class="note-list">
+            {notes.map((note) => (
+              <NoteItem note={note} />
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">まだ制作メモがありません。</p>
+        )
+      }
+    </div>
+  </section>
 </Layout>

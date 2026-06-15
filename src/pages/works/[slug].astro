@@ -36,7 +36,8 @@ const pageCss = pageStyles[`../../styles/works/${work.id}.css`];
 >
   {pageCss && <style is:inline set:html={pageCss} slot="head" />}
 
-  <a class="back" href="/works/">← 作品一覧へ戻る</a>
+  <div class="wrap">
+    <a class="back" href="/works/">← 作品一覧へ戻る</a>
 
   <article class={`detail work-${work.id}`}>
     {
@@ -81,4 +82,5 @@ const pageCss = pageStyles[`../../styles/works/${work.id}.css`];
       <Content />
     </div>
   </article>
+  </div>
 </Layout>

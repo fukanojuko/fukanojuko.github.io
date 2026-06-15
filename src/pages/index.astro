@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import WorkCard from '../components/WorkCard.astro';
 import DesignCard from '../components/DesignCard.astro';
 import NoteItem from '../components/NoteItem.astro';
 import { SITE_TITLE, SITE_TAGLINE } from '../consts';
@@ -20,65 +19,107 @@ const designs = (await getCollection('designs', ({ data }) => !data.draft))
 const notes = (await getCollection('notes', ({ data }) => !data.draft))
   .sort((a, b) => byDateDesc(a.data, b.data))
   .slice(0, 5);
+
+const feature = works[0]; // 先頭をフィーチャー、残りは番号付き目次に
+const restWorks = works.slice(1);
+const year = new Date().getFullYear();
 ---
 
 <Layout title={SITE_TITLE}>
-  <section class="hero">
-    <h1>{SITE_TITLE}</h1>
-    <p>{SITE_TAGLINE}</p>
+  <section class="masthead">
+    <div class="wrap">
+      <p class="masthead__kicker reveal reveal-1">{SITE_TAGLINE}</p>
+      <h1 class="masthead__title reveal reveal-1">{SITE_TITLE}</h1>
+      <p class="masthead__meta reveal reveal-2">VOL.{year} ／ ゲーム制作</p>
+    </div>
   </section>
 
   <section class="section">
-    <div class="section-head">
-      <h2>作品</h2>
-      <a class="more" href="/works/">すべて見る →</a>
+    <div class="wrap rise">
+      <div class="section-head">
+        <h2><span class="num">01 / WORKS</span>作品</h2>
+        <a class="more" href="/works/">すべて見る →</a>
+      </div>
+      {
+        works.length > 0 ? (
+          <Fragment>
+            <a class="feature" href={`/works/${feature.id}/`}>
+              <div class="feature__media">
+                {feature.data.thumbnail ? (
+                  <img src={feature.data.thumbnail} alt={feature.data.title} />
+                ) : (
+                  <div class="placeholder">{feature.data.title}</div>
+                )}
+              </div>
+              <div class="feature__body">
+                <span class="feature__num">No.01</span>
+                {feature.data.genre && (
+                  <span class="badge">{feature.data.genre}</span>
+                )}
+                <h3>{feature.data.title}</h3>
+                {feature.data.summary && <p>{feature.data.summary}</p>}
+                <span class="feature__cta">詳しく見る →</span>
+              </div>
+            </a>
+            {restWorks.length > 0 && (
+              <ol class="index-list">
+                {restWorks.map((w) => (
+                  <li>
+                    <a href={`/works/${w.id}/`}>
+                      <span class="index-list__title">{w.data.title}</span>
+                      {w.data.genre && (
+                        <span class="index-list__genre">{w.data.genre}</span>
+                      )}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Fragment>
+        ) : (
+          <p class="empty">まだ作品が登録されていません。</p>
+        )
+      }
     </div>
-    {
-      works.length > 0 ? (
-        <div class="grid">
-          {works.map((work) => (
-            <WorkCard work={work} />
-          ))}
-        </div>
-      ) : (
-        <p class="empty">まだ作品が登録されていません。</p>
-      )
-    }
+  </section>
+
+  <section class="section section--invert">
+    <div class="wrap rise">
+      <div class="section-head">
+        <h2><span class="num">02 / DESIGN</span>デザイン</h2>
+        <a class="more" href="/designs/">すべて見る →</a>
+      </div>
+      {
+        designs.length > 0 ? (
+          <div class="grid">
+            {designs.map((design) => (
+              <DesignCard design={design} />
+            ))}
+          </div>
+        ) : (
+          <p class="empty">まだデザインが登録されていません。</p>
+        )
+      }
+    </div>
   </section>
 
   <section class="section">
-    <div class="section-head">
-      <h2>デザイン</h2>
-      <a class="more" href="/designs/">すべて見る →</a>
+    <div class="wrap rise">
+      <div class="section-head">
+        <h2><span class="num">03 / NOTES</span>制作メモ</h2>
+        <a class="more" href="/notes/">すべて見る →</a>
+      </div>
+      {
+        notes.length > 0 ? (
+          <ul class="note-list">
+            {notes.map((note) => (
+              <NoteItem note={note} />
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">まだ制作メモがありません。</p>
+        )
+      }
     </div>
-    {
-      designs.length > 0 ? (
-        <div class="grid">
-          {designs.map((design) => (
-            <DesignCard design={design} />
-          ))}
-        </div>
-      ) : (
-        <p class="empty">まだデザインが登録されていません。</p>
-      )
-    }
-  </section>
-
-  <section class="section">
-    <div class="section-head">
-      <h2>制作メモ</h2>
-      <a class="more" href="/notes/">すべて見る →</a>
-    </div>
-    {
-      notes.length > 0 ? (
-        <ul class="note-list">
-          {notes.map((note) => (
-            <NoteItem note={note} />
-          ))}
-        </ul>
-      ) : (
-        <p class="empty">まだ制作メモがありません。</p>
-      )
-    }
   </section>
 </Layout>

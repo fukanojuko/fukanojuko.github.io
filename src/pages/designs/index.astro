@@ -14,21 +14,25 @@ const designs = (await getCollection('designs', ({ data }) => !data.draft)).sort
 );
 ---
 
-<Layout title="デザイン" description="fukanojuko のデザインラフ・WIP">
-  <section class="hero">
-    <h1>デザイン</h1>
-    <p>デザインラフ・WIP の共有。</p>
+<Layout title="デザイン" description="深野重興 のデザインラフ・WIP">
+  <section class="hero-k hero-k--page">
+    <h1 class="hero-k__title reveal reveal-1">デザイン</h1>
+    <p class="hero-k__sub reveal reveal-2">デザインラフ・WIP の共有。</p>
   </section>
 
-  {
-    designs.length > 0 ? (
-      <section class="grid">
-        {designs.map((design) => (
-          <DesignCard design={design} />
-        ))}
-      </section>
-    ) : (
-      <p class="empty">まだデザインが登録されていません。</p>
-    )
-  }
+  <section class="section">
+    <div class="wrap rise">
+      {
+        designs.length > 0 ? (
+          <div class="grid">
+            {designs.map((design) => (
+              <DesignCard design={design} />
+            ))}
+          </div>
+        ) : (
+          <p class="empty">まだデザインが登録されていません。</p>
+        )
+      }
+    </div>
+  </section>
 </Layout>

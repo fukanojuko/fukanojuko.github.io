@@ -32,7 +32,8 @@ const pageCss = pageStyles[`../../styles/notes/${note.id}.css`];
 >
   {pageCss && <style is:inline set:html={pageCss} slot="head" />}
 
-  <a class="back" href="/notes/">← 制作メモ一覧へ戻る</a>
+  <div class="wrap">
+    <a class="back" href="/notes/">← 制作メモ一覧へ戻る</a>
 
   <article class={`detail note-${note.id}`}>
     <h1>{title}</h1>
@@ -43,7 +44,7 @@ const pageCss = pageStyles[`../../styles/notes/${note.id}.css`];
 
     {
       tags && tags.length > 0 && (
-        <div class="tagrow" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+        <div class="tagrow">
           {tags.map((t) => (
             <span class="tag">{t}</span>
           ))}
@@ -55,4 +56,5 @@ const pageCss = pageStyles[`../../styles/notes/${note.id}.css`];
       <Content />
     </div>
   </article>
+  </div>
 </Layout>

@@ -13,21 +13,25 @@ const works = (await getCollection('works', ({ data }) => !data.draft)).sort(
 );
 ---
 
-<Layout title="作品" description="fukanojuko の作品一覧">
-  <section class="hero">
-    <h1>作品</h1>
-    <p>完成・開発中の作品紹介。</p>
+<Layout title="作品" description="深野重興 の作品一覧">
+  <section class="hero-k hero-k--page">
+    <h1 class="hero-k__title reveal reveal-1">作品</h1>
+    <p class="hero-k__sub reveal reveal-2">完成・開発中の作品紹介。</p>
   </section>
 
-  {
-    works.length > 0 ? (
-      <section class="grid">
-        {works.map((work) => (
-          <WorkCard work={work} />
-        ))}
-      </section>
-    ) : (
-      <p class="empty">まだ作品が登録されていません。</p>
-    )
-  }
+  <section class="section">
+    <div class="wrap rise">
+      {
+        works.length > 0 ? (
+          <div class="grid">
+            {works.map((work) => (
+              <WorkCard work={work} />
+            ))}
+          </div>
+        ) : (
+          <p class="empty">まだ作品が登録されていません。</p>
+        )
+      }
+    </div>
+  </section>
 </Layout>

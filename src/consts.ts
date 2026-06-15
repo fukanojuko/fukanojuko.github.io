@@ -1,8 +1,8 @@
 // サイト全体の表示設定。団体名・タグライン・セクションはここを編集する。
-export const SITE_TITLE = 'fukanojuko'; // ← 団体の表示名に変更してください（日本語OK）
+export const SITE_TITLE = '深野重興'; // ← 団体の表示名（日本語OK）。URL/リポジトリ名は fukanojuko のまま
 export const SITE_TAGLINE = '作品・デザイン・制作メモ';
 export const SITE_DESCRIPTION =
-  'ゲーム制作団体 fukanojuko の作品紹介・デザイン・制作メモ。';
+  'ゲーム制作団体 深野重興 の作品紹介・デザイン・制作メモ。';
 export const SITE_URL = 'https://fukanojuko.github.io';
 
 // ヘッダーナビ・トップページのセクション定義。
